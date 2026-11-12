@@ -21,6 +21,7 @@ const files = {
   'decisions/requests.md': '# decisions',
   'reviews/2026-11-12-request-form-privacy-lead.md': '# report',
   'eval/cases.md': '# cases',
+  '.claude/skills/synthetic-user/eval/cases.md': '# cases kept in the wrong place',
   'src/app.js': 'code',
   '.env': 'SECRET=1',
 };
@@ -51,6 +52,8 @@ test('reads only the allowed folders', () => {
 
 test('never reads the eval, secrets or code behind a link', () => {
   blocks('Read', { file_path: 'eval/cases.md' });
+  blocks('Read', { file_path: '.claude/skills/synthetic-user/eval/cases.md' });
+  blocks('Grep', { pattern: 'flag', path: '.claude/skills/synthetic-user/eval' });
   blocks('Read', { file_path: '.env' });
   blocks('Read', { file_path: 'knowledge-base/link-to-src/app.js' });
 });

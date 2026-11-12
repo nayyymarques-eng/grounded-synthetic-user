@@ -34,8 +34,8 @@ const PROFILES = {
   'rules-watch': { read: [KNOWLEDGE_BASE, REVIEWS], write: [KNOWLEDGE_BASE, REVIEWS], reopen: true },
 };
 
-// Never readable, even inside an allowed folder. The eval cases hold the answers.
-const NEVER = ['eval/', '.git/'];
+// Never readable, even inside an allowed folder: any folder named eval (the cases hold the answers) or .git, wherever it sits.
+const NEVER = /(^|\/)(eval|\.git)(\/|$)/;
 const SECRET = /(^|\/)(\.env(\..*)?|\.dev\.vars|.*\.pem|.*\.key|id_rsa.*|credentials.*)$/i;
 
 // Bash is off unless a command matches one of these, whole and alone (no ; | & ` $( > < or new line).
@@ -111,7 +111,7 @@ function locate(p) {
 }
 
 const under = (rel, folder) => rel === folder.replace(/\/$/, '') || rel.startsWith(folder);
-const forbidden = (rel) => NEVER.some((f) => under(rel, f)) || SECRET.test(rel);
+const forbidden = (rel) => NEVER.test(rel) || SECRET.test(rel);
 const list = (folders) => folders.join(', ');
 
 function checkRead(p) {

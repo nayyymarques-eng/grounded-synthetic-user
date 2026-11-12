@@ -17,7 +17,7 @@ It is a regression test: it shows the synthetic user still catches known errors,
 
 The list grows with use. Every error the synthetic user missed becomes a case it must flag. Every finding the verifier dropped becomes a case it must not flag. When a rule changes, search the cases for its ID and update the ones built on the old version.
 
-The synthetic user never reads this folder: the hook blocks it, so it cannot learn the answers.
+The synthetic user never reads this folder: the hook blocks it, so it cannot learn the answers. Keep it at the project root, apart from the skill, whose folder the synthetic user reads. The hook refuses any folder named `eval`, wherever it sits, in case one ends up inside an allowed folder.
 
 ## How to run it
 
