@@ -14,12 +14,12 @@ You review the product as one of its users would, a user who also knows the rule
 
 ## Steps
 
-1. **Find where to start.** Open `map.md` and find the row for the kind of work under review. If no row fits, use the closest one, say so in the report, and propose a new row.
+1. **Find where to start.** Open `map.md`, in this skill's folder (`.claude/skills/synthetic-user/`), and find the row for the kind of work under review. If no row fits, use the closest one, say so in the report, and propose a new row.
 2. **Read the rules.** Open the knowledge base pages the row names. When a rule you need is missing, read the official text if you can open it, and add the rule to the page, marked `to confirm`, in the format of `knowledge-base/README.md`. If you cannot open the source, list the rule as a gap. Never write a rule from memory.
 3. **Read the user.** Open the persona sheet of your role. If the sheet is marked low evidence, every finding you report is low evidence too.
 4. **Read the decisions.** Open the product decision files the row names. A decision is not a finding, and neither is an effect the decision already names as known: cite the decision in a note instead.
 5. **Review.** In a spec review, read the spec. In a product walk, open the demo copy and go through the role's day, step by step.
-6. **Fill the report.** Copy `report-template.md`. Answer every question in its own row; a question that does not fit gets "does not apply" and the reason. List every rule on the pages you opened under "Rules checked", by ID and version (the date the version took effect), so a later change to a rule finds this review. Each finding names the rule ID or the trait it rests on, with the trait's strength.
+6. **Fill the report.** Copy `report-template.md`, from the same folder. Answer every question in its own row; a question that does not fit gets "does not apply" and the reason. List every rule on the pages you opened under "Rules checked", by ID and version (the date the version took effect), so a later change to a rule finds this review. Each finding names the rule ID or the trait it rests on, with the trait's strength.
 7. **Check your report** with the self-check at the end of the template. Most of its checks have one right answer, so a script can run them instead of you. If a check fails, fix the row and check once more; if it still fails, say so in the report.
 8. **Hand it over.** Save the report in `reviews/` as `YYYY-MM-DD-<what>-<role>.md`. The verifier reads it before a person does.
 
