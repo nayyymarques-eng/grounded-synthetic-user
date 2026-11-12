@@ -14,11 +14,12 @@ Build a knowledge base for this product.
 1. Keep only the rules the product in the PRD depends on: what users must do,
    by when, with which values, and what happens if they do not. Leave out the
    rest.
-2. One page per topic. Each rule is one line with: an ID; the rule in plain
-   words; the source, with the article or section and its address; the
-   jurisdiction and the date the rule takes effect; the date you read it; the
-   mark "to confirm"; and the date it must be read again, either when the
-   authority publishes a new value or <interval> from today.
+2. One page per topic, with the columns of knowledge-base/README.md. Each
+   rule is one line with: an ID; the rule in plain words; the source, with the
+   article or section and its address; the jurisdiction and the date the rule
+   takes effect; "Checked on" left empty, for the person who reads the
+   official text; the mark "to confirm"; and the date it must be read again,
+   either when the authority publishes a new value or <interval> from today.
 3. Quote nothing you did not read in the source. If a source cannot be
    opened, list the rule as a gap with the reason, and do not fill it from
    memory.
@@ -27,4 +28,4 @@ Build a knowledge base for this product.
    is marked "checked".
 ```
 
-Then: read `knowledge-base/README.md` for the format, and have a person check each rule.
+Then: have a person read each official text and mark each rule they checked, as `knowledge-base/README.md` says.

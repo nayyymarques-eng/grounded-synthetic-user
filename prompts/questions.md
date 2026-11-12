@@ -19,10 +19,12 @@ Write the questions every review of our product must answer.
    from and their strength. A question that rests only on weak traits (fewer
    than <number> interviews, heard second-hand, or a hypothesis) is marked
    low evidence.
-3. Every review answers every question, so merge any two questions that check
-   the same thing.
+3. Every review answers every question, so merge two questions when one
+   answer settles both. Keep each question to one check, so a "no" says what
+   failed.
 4. Do not write a question that no rule or trait supports. List the ones you
    wanted to write but could not support, as gaps for the next interview or for
    an expert.
-5. Return a table: question, asked as (expert or user), source, strength.
+5. Return a table: ID (E1, E2… for an expert's question, U1, U2… for a
+   user's), question, asked as, source, strength.
 ```
