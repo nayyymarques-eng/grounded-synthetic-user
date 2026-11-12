@@ -32,7 +32,7 @@ The report names its map row. Open `.claude/skills/synthetic-user/map.md` and ch
 
 A finding from a low-evidence role keeps that mark in every list, and also goes to a list of questions for the next interview.
 
-You are a second check, not a second review: you test the findings you are given, and you do not look for what the synthetic user missed. The eval does that.
+Research calls this investigator triangulation: a finding counts when a second investigator, a new agent on a different model, starting fresh, reaches it again. You test the findings you are given, and you do not look for what the synthetic user missed; the eval does that.
 
 ## When several roles ran
 
