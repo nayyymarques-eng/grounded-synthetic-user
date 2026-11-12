@@ -1,0 +1,117 @@
+// Tests for black-box.mjs. Run: node --test hooks/black-box.test.mjs
+// Each test sends the hook a PreToolUse call, as Claude Code does, and checks whether it lets it run (0) or blocks it (2).
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HOOK = join(dirname(fileURLToPath(import.meta.url)), 'black-box.mjs');
+
+// A small project: the allowed folders, some code, the eval and a secret.
+const ROOT = mkdtempSync(join(tmpdir(), 'black-box-test-'));
+const files = {
+  '.claude/skills/synthetic-user/SKILL.md': '# skill',
+  '.claude/skills/synthetic-user/persona-sheets/privacy-lead.md': '# sheet',
+  'knowledge-base/privacy-requests.md': '| ID | Rule | Mark |\n| PRIV-01 | One month | checked |\n',
+  'specs/request-form.md': '# spec',
+  'decisions/requests.md': '# decisions',
+  'reviews/2026-11-12-request-form-privacy-lead.md': '# report',
+  'eval/cases.md': '# cases',
+  'src/app.js': 'code',
+  '.env': 'SECRET=1',
+};
+for (const [path, body] of Object.entries(files)) {
+  mkdirSync(dirname(join(ROOT, path)), { recursive: true });
+  writeFileSync(join(ROOT, path), body);
+}
+symlinkSync(join(ROOT, 'src'), join(ROOT, 'knowledge-base', 'link-to-src'));
+
+function run(tool, args, profile, raw) {
+  const input = raw ?? JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: tool, tool_input: args, cwd: ROOT });
+  const result = spawnSync('node', [HOOK, ...(profile ? [profile] : [])], {
+    input, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: ROOT },
+  });
+  return { code: result.status, err: result.stderr };
+}
+const allows = (...a) => assert.equal(run(...a).code, 0, JSON.stringify(a));
+const blocks = (...a) => assert.equal(run(...a).code, 2, JSON.stringify(a));
+
+test('reads only the allowed folders', () => {
+  allows('Read', { file_path: join(ROOT, 'knowledge-base/privacy-requests.md') });
+  allows('Read', { file_path: 'specs/request-form.md' });
+  allows('Read', { file_path: '.claude/skills/synthetic-user/persona-sheets/privacy-lead.md' });
+  blocks('Read', { file_path: 'src/app.js' });
+  blocks('Read', { file_path: 'knowledge-base/../src/app.js' });
+  blocks('Read', { file_path: '/etc/hosts' });
+});
+
+test('never reads the eval, secrets or code behind a link', () => {
+  blocks('Read', { file_path: 'eval/cases.md' });
+  blocks('Read', { file_path: '.env' });
+  blocks('Read', { file_path: 'knowledge-base/link-to-src/app.js' });
+});
+
+test('each profile reads its own folders', () => {
+  blocks('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, 'synthetic-user');
+  allows('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, 'verifier');
+  blocks('Read', { file_path: 'eval/cases.md' }, 'verifier');
+  blocks('Read', { file_path: 'specs/request-form.md' }, 'rules-watch');
+  blocks('Read', { file_path: 'specs/request-form.md' }, 'unknown');
+});
+
+test('searches need an allowed path', () => {
+  blocks('Grep', { pattern: 'deadline' });
+  allows('Grep', { pattern: 'deadline', path: 'knowledge-base' });
+  blocks('Grep', { pattern: 'deadline', path: 'src' });
+  allows('Glob', { pattern: '**/*.md', path: 'specs' });
+  blocks('Glob', { pattern: '**/*.js' });
+  blocks('Glob', { pattern: join(ROOT, 'src/*.js'), path: 'specs' });
+});
+
+test('writes only the report and the knowledge base', () => {
+  allows('Write', { file_path: 'reviews/2026-11-13-export-board.md', content: '# report' });
+  blocks('Write', { file_path: 'src/app.js', content: 'fixed' });
+  blocks('Write', { file_path: 'specs/request-form.md', content: 'changed' });
+  blocks('Write', { file_path: 'knowledge-base/x.md', content: '# rules' }, 'verifier');
+});
+
+test('only a person marks a rule checked', () => {
+  allows('Write', { file_path: 'knowledge-base/fees.md', content: '| PRIV-04 | Free of charge | to confirm |' });
+  blocks('Write', { file_path: 'knowledge-base/fees.md', content: '| PRIV-04 | Free of charge | checked |' });
+  blocks('Write', { file_path: 'knowledge-base/privacy-requests.md', content: 'overwrite' });
+  allows('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |\n', new_string: '| PRIV-01 | One month | checked |\n| PRIV-07 | New | to confirm |\n' });
+  blocks('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | Two months | to confirm |' });
+  allows('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | One month | to confirm |' }, 'rules-watch');
+  blocks('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-07 | New | to confirm |', new_string: '| PRIV-07 | New | checked |' }, 'rules-watch');
+});
+
+test('commands are off unless allowed', () => {
+  blocks('Bash', { command: 'cat src/app.js' });
+  blocks('Bash', { command: 'git log' });
+  blocks('Bash', { command: 'ls' });
+});
+
+test('addresses that serve source code are blocked', () => {
+  allows('WebFetch', { url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj', prompt: 'x' });
+  allows('mcp__playwright__browser_navigate', { url: 'http://localhost:3000/requests' });
+  blocks('mcp__playwright__browser_navigate', { url: 'http://localhost:3000/assets/app.js' });
+  blocks('mcp__playwright__browser_navigate', { url: 'view-source:http://localhost:3000/' });
+  blocks('WebFetch', { url: 'http://localhost:3000/app.js.map', prompt: 'x' });
+  blocks('mcp__playwright__browser_evaluate', { function: '() => document.scripts' });
+});
+
+test('the temporary folder is open', () => {
+  allows('Write', { file_path: join(tmpdir(), 'synthetic-user', 'walk.png'), content: 'x' });
+  allows('Read', { file_path: join(tmpdir(), 'synthetic-user', 'notes.md') });
+});
+
+test('malformed input is blocked without being echoed', () => {
+  const { code, err } = run(null, null, null, '{"tool_name": "Read", "secret": "abc123"');
+  assert.equal(code, 2);
+  assert.ok(!err.includes('abc123'));
+  assert.equal(run(null, null, null, JSON.stringify({ tool_name: 'Read' })).code, 2);
+});
