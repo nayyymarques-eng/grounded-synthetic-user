@@ -59,7 +59,7 @@ Then:
 3. Open Claude Code in your project and accept the workspace trust dialog, so the project's hooks run. The hook lives in `.claude/settings.json`, not in the agent files: Claude Code skips an agent's own hooks in any `claude -p` run, and the agent would run with no guard. It knows each agent by its name, so keep the names `synthetic-user`, `verifier` and `rules-watch`, or rename the profiles at the top of the hook.
 4. For a product walk, give `agents/synthetic-user.md` a browser tool (see the note at the end of that file). Serve the demo copy as you ship it, with no folder listings and no source maps: the hook checks the address the agent asks for, not where a click lands, so a link to a code file is a way in.
 
-The hook needs Node.js 18 or later.
+The hook runs on Node.js 18 or later, and was tested on 18, 22, 24 and 26. Use a version that still gets security updates: the current LTS release.
 
 ## First run
 
