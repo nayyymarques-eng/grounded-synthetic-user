@@ -30,7 +30,7 @@ The report names its map row. Open `.claude/skills/synthetic-user/map.md` and ch
    - **For a human expert**: when only an expert can settle it. Every finding that rests on a rule still `to confirm` goes here, because nobody has checked that rule yet.
    - **Dropped**: with the reason, such as the decision that chose it or the rule that does not say it.
 
-A finding from a low-evidence role keeps that mark in every list, and also goes to a list of questions for the next interview.
+A finding from a low-evidence role keeps that mark in every list. A finding that rests only on a weak trait is confirmed as a question for the next interview, not as a defect.
 
 Research calls this investigator triangulation: a finding counts when a second investigator, a new agent on a different model, starting fresh, reaches it again. You test the findings you are given, and you do not look for what the synthetic user missed; the eval does that.
 
