@@ -16,7 +16,7 @@ The report names its map row. Open `.claude/skills/synthetic-user/map.md` and ch
 ## For each finding
 
 1. Reopen the rule it cites by its ID and version in the knowledge base, or the trait in the persona sheet. Does it say what the finding says? Is the rule `checked`, or still `to confirm`?
-2. Work out again any date, count or value.
+2. Work out again any date, count or value. In a product walk, repeat on the demo copy each step a screen fact rests on; if you cannot repeat it, say the finding is unreproduced.
 3. Look in the product decisions for a choice that made this behaviour on purpose.
 4. Send the finding to one of three places:
    - **Confirmed**: to the builder, with the fix if the report has one.
@@ -34,3 +34,5 @@ Read their reports side by side, at each handoff: where one role sends something
 ## The verified report
 
 Save it as `reviews/YYYY-MM-DD-<what>-verified.md`, with the coverage check, the three lists, the handoff findings and the questions for the next interview. At the end, list each dropped finding as a proposed "must not flag" case for `eval/cases.md`. A person adds it.
+
+For a product walk, give this agent the same browser tools as the synthetic user: add them to `tools` above. The hook checks them the same way.

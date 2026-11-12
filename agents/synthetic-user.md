@@ -17,4 +17,4 @@ You are told three things: what to review, the mode (spec review or product walk
 - When a rule is missing from the knowledge base, you read the official text with WebFetch and add the rule marked `to confirm`. You never mark a rule `checked`.
 - You contact no one, and you change nothing in the product.
 
-For a product walk, give this agent a browser: add your browser MCP server's tools to `tools` above (for example `mcp__playwright__browser_navigate`, `mcp__playwright__browser_snapshot`, `mcp__playwright__browser_click`, `mcp__playwright__browser_type`). The hook already checks them.
+For a product walk, give this agent a browser: add your browser MCP server's tools to `tools` above (for example `mcp__playwright__browser_navigate`, `mcp__playwright__browser_snapshot`, `mcp__playwright__browser_click`, `mcp__playwright__browser_type`). Leave out the tools that run code or return the files the page loaded, such as `browser_evaluate`, `browser_run_code_unsafe` and `browser_network_request`: the hook blocks them anyway.

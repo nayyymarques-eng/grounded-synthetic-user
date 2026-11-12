@@ -31,7 +31,7 @@ It never reads the code. A second agent tries to prove each finding wrong before
 | `eval/` | Test cases the synthetic user must pass. It never reads them |
 | `agents/synthetic-user.md` | Reviews a spec, or walks the product as one role |
 | `agents/verifier.md` | Tries to prove each finding wrong, and compares roles at each handoff |
-| `agents/rules-watch.md` | Reads the official sources for changes. Not tested yet |
+| `agents/rules-watch.md` | Reads the official sources for changes |
 | `hooks/black-box.mjs` | Lets the agents read the spec and the knowledge base, and refuses the code |
 | `hooks/settings.json` | Runs the hook before every tool call an agent makes, from the project's settings |
 | `prompts/` | The prompts that draft the knowledge base and the questions |
@@ -57,7 +57,7 @@ Then:
 1. Open `.claude/hooks/black-box.mjs` and check the folder names at the top match your project.
 2. Run the hook's tests from the kit: `node --test hooks/black-box.test.mjs`.
 3. Open Claude Code in your project and accept the workspace trust dialog, so the project's hooks run. The hook lives in `.claude/settings.json`, not in the agent files: Claude Code skips an agent's own hooks in any `claude -p` run, and the agent would run with no guard. It knows each agent by its name, so keep the names `synthetic-user`, `verifier` and `rules-watch`, or rename the profiles at the top of the hook.
-4. For a product walk, give `agents/synthetic-user.md` a browser tool (see the note at the end of that file).
+4. For a product walk, give `agents/synthetic-user.md` a browser tool (see the note at the end of that file). Serve the demo copy as you ship it, with no folder listings and no source maps: the hook checks the address the agent asks for, not where a click lands, so a link to a code file is a way in.
 
 The hook needs Node.js 18 or later.
 
@@ -100,7 +100,7 @@ Fixed in every setup: every question is answered in every review, every rule has
 - The verifier tests the findings it is given; it does not look for what the synthetic user missed. The eval is a regression test: it shows known errors are still caught, not that every error is.
 - On the rules, it is as reliable as the knowledge base. A rule marked `checked` by mistake reaches every review.
 - The hook checks paths, not intent. It stops the agents from reading the code by accident; it is not a sandbox. The agent files say the same in words.
-- The rules watch is designed but not tested yet.
+- The rules watch reads each source with WebFetch, which returns a summary with short quotes, not the full text. It finds a changed deadline or amount; a person still reads the full text before marking a rule `checked`.
 
 ## License
 

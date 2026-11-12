@@ -45,10 +45,11 @@ const SECRET = /(^|\/)(\.env(\..*)?|\.dev\.vars|.*\.pem|.*\.key|id_rsa.*|credent
 // Example for a product walk with a browser script: /^node walk\/[a-z-]+\.mjs( --role [a-z-]+)?$/
 const ALLOWED_COMMANDS = [];
 
-// For tools that open an address (WebFetch, browser tools): the source code the page loads.
-const SOURCE_URL = /^(view-source:|file:)|\.(m?js|cjs|ts|tsx|jsx|css|map)([?#]|$)|\/(src|node_modules)\//i;
-// Browser tools that run code inside the page can read the source the page loaded.
-const BLOCKED_TOOLS = /^mcp__.*(evaluate|run_code)/i;
+// For tools that open an address (WebFetch, browser tools): the source code the page loads, and addresses that run code.
+const SOURCE_URL = /^(view-source:|file:|javascript:|data:)|\.(m?js|cjs|ts|tsx|jsx|css|map)([?#]|$)|\/(src|node_modules)\//i;
+// Browser tools that run code, or return the body of a file the page loaded, can read the source.
+// The names are Playwright MCP's (browser_evaluate, browser_run_code_unsafe, browser_network_request); check your browser server's.
+const BLOCKED_TOOLS = /^mcp__.*(evaluate|run_code|network_request$)/i;
 
 // A folder in the system's temporary directory, for screenshots and notes during a run.
 const TEMP = join(tmpdir(), 'synthetic-user');
@@ -150,7 +151,7 @@ function checkWrite(p, content, oldContent) {
 
 const checkedRows = (text) => text.split('\n').filter((line) => CHECKED_ROW.test(line)).map((line) => line.trim());
 
-if (BLOCKED_TOOLS.test(tool)) block(`${tool} runs code inside the page, which can read the source.`);
+if (BLOCKED_TOOLS.test(tool)) block(`${tool} runs code in the page or returns a file the page loaded, which can be the source.`);
 
 switch (tool) {
   case 'Read':
@@ -190,6 +191,16 @@ switch (tool) {
     // WebFetch and browser tools: any address that serves the source code.
     const url = str(args.url);
     if (url && SOURCE_URL.test(url)) block(`${url} is source code, not something a user sees.`);
+    // Browser tools that take local files: files given to the page are reads (upload, drop); a file saved is a write.
+    for (const p of Array.isArray(args.paths) ? args.paths : []) checkRead(str(p));
+    const file = str(args.filename);
+    if (file) {
+      const where = locate(file);
+      if (!where.temp && (where.outside || forbidden(where.rel) || !profile.write.some((f) => under(where.rel, f)))) {
+        block(`save the browser's files (screenshots, snapshots) in ${REVIEWS}, or in ${TEMP} if your browser tool may write there.`);
+      }
+      checkWrite(file, '');
+    }
   }
 }
 

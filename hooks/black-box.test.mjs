@@ -106,6 +106,25 @@ test('addresses that serve source code are blocked', () => {
   blocks('mcp__playwright__browser_navigate', { url: 'view-source:http://localhost:3000/' });
   blocks('WebFetch', { url: 'http://localhost:3000/app.js.map', prompt: 'x' });
   blocks('mcp__playwright__browser_evaluate', { function: '() => document.scripts' });
+  blocks('mcp__playwright__browser_run_code_unsafe', { code: 'async (page) => page.content()' });
+  blocks('mcp__playwright__browser_navigate', { url: 'javascript:fetch("/assets/app.js")' });
+  blocks('mcp__playwright__browser_tabs', { action: 'new', url: 'http://localhost:3000/assets/app.js' });
+});
+
+test('the body of a file the page loaded is blocked; the list of addresses is not', () => {
+  blocks('mcp__playwright__browser_network_request', { index: 2, part: 'response-body' });
+  allows('mcp__playwright__browser_network_requests', {});
+});
+
+test('local files given to the page are reads, and a file a browser tool saves is a write', () => {
+  blocks('mcp__playwright__browser_file_upload', { paths: [join(ROOT, '.env')] });
+  blocks('mcp__playwright__browser_drop', { target: 'e5', paths: [join(ROOT, 'src/app.js')] });
+  allows('mcp__playwright__browser_file_upload', { paths: [join(ROOT, 'specs/request-form.md')] });
+  blocks('mcp__playwright__browser_take_screenshot', { filename: join(ROOT, 'specs/walk.png') });
+  blocks('mcp__playwright__browser_snapshot', { filename: 'walk.md' });
+  allows('mcp__playwright__browser_take_screenshot', { filename: join(ROOT, 'reviews/walk-1.png') });
+  allows('mcp__playwright__browser_take_screenshot', { filename: join(tmpdir(), 'synthetic-user', 'walk-1.png') });
+  allows('mcp__playwright__browser_take_screenshot', {});
 });
 
 test('it guards the agents by name, and lets every other session through', () => {
