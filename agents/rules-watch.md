@@ -31,6 +31,6 @@ Save it as `reviews/YYYY-MM-DD-rules-watch.md`:
 
 For example, a weekly job that runs Claude Code in the project:
 
-    claude -p "Use the rules-watch agent to check the knowledge base."
+    claude -p "Use the rules-watch agent to check the knowledge base." --permission-mode acceptEdits --allowedTools WebFetch
 
-How often is each business's choice.
+A scheduled job has no one to approve a tool, so the command allows what the agent needs: WebFetch to read the sources, and edits to write the knowledge base and its report. The hook still decides which files it may read and write. How often it runs is each business's choice.
