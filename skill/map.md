@@ -10,6 +10,7 @@ Example for the made-up product (privacy requests):
 | Identity check | `privacy-requests.md` | `decisions/requests.md` | privacy lead, support agent | E4, U2 |
 | Fee, refusal or copy of the data | `privacy-requests.md` | `decisions/requests.md` | privacy lead | E1, E4 |
 | Intake, from the support inbox to the privacy lead | `privacy-requests.md` | `decisions/requests.md` | support agent, privacy lead | E2, U2 |
+| Answer, refusal or closing a request | `privacy-requests.md` | `decisions/requests.md` | privacy lead | E1, U3 |
 | Help text or email that states a rule | the pages of the rules it states | none | privacy lead | E1, E3 |
 
 Every review still answers every question. The last column says which ones to read most closely.

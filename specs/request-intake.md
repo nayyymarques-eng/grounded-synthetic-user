@@ -14,13 +14,11 @@ People send requests about their personal data to the shop's support inbox. The 
 2. The request appears in the privacy lead's list the next time the lead opens it, with the status "New".
 3. When the lead opens the request, the product starts the clock: the due date is 30 days from that moment, and the list shows it as "Due on dd/mm".
 4. If the email the person wrote from does not match an order, the request form asks for the order number before the request reaches the lead.
-5. The lead can click **Extend** to add two months. The button stays disabled until the lead writes the reason, which goes into the letter to the person.
-6. A request past its due date stays at the top of the list, marked "overdue", until someone closes it.
-7. The lead sends the answer from the shop's own email and marks the request as answered, with the date sent.
-8. The person's first copy of their data is free. Each further copy costs €5.
+5. A request past its due date stays at the top of the list, marked "overdue", until someone closes it.
+6. The person's first copy of their data is free. Each further copy costs €5.
 
 ## Screens
 
 - **Support inbox**: the request, with the button Send to privacy lead.
 - **Privacy lead's list**: one row per request, with status, due date and the role that sent it.
-- **Request**: the person's message, the order it matches, the due date, Extend, Mark as answered.
+- **Request**: the person's message, the order it matches and the due date.

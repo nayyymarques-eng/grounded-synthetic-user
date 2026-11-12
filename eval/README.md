@@ -28,7 +28,7 @@ Ask Claude Code, in your main session:
 The main session:
 
 1. Reads `cases.md`.
-2. For each case, starts the `synthetic-user` agent with only the case's input, mode and role. Never the expected answer. The agent writes its report in the system's temporary folder, under `synthetic-user/eval/`, so eval reports stay apart from real ones. A model's answer varies from one run to the next, so each case runs more than once (three times, unless you set another number).
+2. For each case, starts the `synthetic-user` agent with only the case's input, mode and role, and tells it the input is the whole text under review, so it does not open other specs. Never the expected answer. The agent writes its report in the system's temporary folder, under `synthetic-user/eval/`, so eval reports stay apart from real ones. A model's answer varies from one run to the next, so each case runs more than once (three times, unless you set another number).
 3. Starts a second agent, on a different model from the synthetic user, to grade each report against the case's "Passes when". A report passes when it flags what the case says it must, citing the rule's ID, or leaves alone what it must not flag.
 4. Lists each case as pass or fail, with the reason. A case passes only when every run of it passes.
 
