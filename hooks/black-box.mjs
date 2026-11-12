@@ -1,6 +1,6 @@
 // black-box.mjs: keeps an agent on the user's side of the product.
 //
-// A Claude Code PreToolUse hook for the agents in agents/. Before each tool call, it checks the
+// A Claude Code PreToolUse hook for the agents in agents/. Before each tool call an agent makes, it checks the
 // paths and addresses the call asks for. The synthetic user may read the skill, the knowledge base,
 // the spec and the product decisions; it may write its report and rules marked "to confirm". It may
 // not read the code, the git history, the secrets or the eval cases.
@@ -9,8 +9,11 @@
 // It is a guard against reading the code by accident, not a sandbox: it checks paths, not intent.
 // The agent's instructions say the same thing in words, so the two cover each other.
 //
-// Install: copy to .claude/hooks/black-box.mjs and call it from the agent's frontmatter with
-//   node "$CLAUDE_PROJECT_DIR/.claude/hooks/black-box.mjs" <profile> || exit 2
+// Install: copy to .claude/hooks/black-box.mjs, and hooks/settings.json to .claude/settings.json (or merge it in).
+// It runs from the project's settings, not from each agent's frontmatter: Claude Code skips frontmatter hooks in a
+// folder it does not trust, including every `claude -p` run, and the agent would then run with no guard.
+// Claude Code tells the hook which agent is calling (agent_type), so each agent gets its own profile below.
+// The person's own session, and any other agent, pass through: the hook guards only the agents named here.
 // Test: node --test hooks/black-box.test.mjs
 
 import { readFileSync, realpathSync, existsSync } from 'node:fs';
@@ -78,8 +81,12 @@ function readInput() {
 }
 
 const input = readInput();
-const profile = PROFILES[process.argv[2] || 'synthetic-user'];
-if (!profile) block(`unknown profile "${process.argv[2]}". Use one of: ${Object.keys(PROFILES).join(', ')}.`);
+// Which agent is calling: its frontmatter name, as Claude Code sends it, or a profile given as an argument.
+// Rename an agent and you must rename its profile here, or the hook stops guarding it.
+const name = process.argv[2] || input.agent_type;
+if (process.argv[2] && !PROFILES[name]) block(`unknown profile "${name}". Use one of: ${Object.keys(PROFILES).join(', ')}.`);
+if (!PROFILES[name]) process.exit(0);
+const profile = PROFILES[name];
 
 const tool = input.tool_name;
 const args = input.tool_input;

@@ -31,8 +31,9 @@ for (const [path, body] of Object.entries(files)) {
 }
 symlinkSync(join(ROOT, 'src'), join(ROOT, 'knowledge-base', 'link-to-src'));
 
-function run(tool, args, profile, raw) {
-  const input = raw ?? JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: tool, tool_input: args, cwd: ROOT });
+// Claude Code sends agent_type for a subagent's tool call; the tests default to the synthetic user.
+function run(tool, args, profile, raw, agent = 'synthetic-user') {
+  const input = raw ?? JSON.stringify({ hook_event_name: 'PreToolUse', tool_name: tool, tool_input: args, cwd: ROOT, ...(agent ? { agent_type: agent } : {}) });
   const result = spawnSync('node', [HOOK, ...(profile ? [profile] : [])], {
     input, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: ROOT },
   });
@@ -105,6 +106,17 @@ test('addresses that serve source code are blocked', () => {
   blocks('mcp__playwright__browser_navigate', { url: 'view-source:http://localhost:3000/' });
   blocks('WebFetch', { url: 'http://localhost:3000/app.js.map', prompt: 'x' });
   blocks('mcp__playwright__browser_evaluate', { function: '() => document.scripts' });
+});
+
+test('it guards the agents by name, and lets every other session through', () => {
+  const code = (agent) => run('Read', { file_path: 'src/app.js' }, null, null, agent).code;
+  assert.equal(code('synthetic-user'), 2);
+  assert.equal(code('verifier'), 2);
+  assert.equal(code('rules-watch'), 2);
+  assert.equal(code(null), 0, 'the person\'s own session');
+  assert.equal(code('general-purpose'), 0, 'another agent');
+  assert.equal(run('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, null, null, 'verifier').code, 0);
+  assert.equal(run('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, null, null, 'synthetic-user').code, 2);
 });
 
 test('the temporary folder is open', () => {

@@ -3,16 +3,9 @@ name: rules-watch
 description: Reads the official sources of the knowledge base, finds rules whose source changed or whose "check again on" date has passed, turns them back to "to confirm", and lists every review that cited them. Run on a schedule. Not tested yet.
 tools: Read, Grep, Glob, Write, Edit, WebFetch
 model: sonnet
-hooks:
-  PreToolUse:
-    - matcher: "Read|Grep|Glob|Write|Edit|MultiEdit|NotebookEdit|Bash|WebFetch|mcp__.*"
-      hooks:
-        - type: command
-          command: node "$CLAUDE_PROJECT_DIR/.claude/hooks/black-box.mjs" rules-watch || exit 2
-          timeout: 15
 ---
 
-You keep the knowledge base current. Not tested yet: read your report with care the first times it runs.
+You keep the knowledge base current. Not tested yet: read your report with care the first times it runs. The hook in `.claude/settings.json` knows you by the name `rules-watch`: you may turn a checked rule back to "to confirm", never mark one "checked".
 
 ## Steps
 

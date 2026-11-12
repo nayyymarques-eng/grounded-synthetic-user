@@ -33,6 +33,7 @@ It never reads the code. A second agent tries to prove each finding wrong before
 | `agents/verifier.md` | Tries to prove each finding wrong, and compares roles at each handoff |
 | `agents/rules-watch.md` | Reads the official sources for changes. Not tested yet |
 | `hooks/black-box.mjs` | Lets the agents read the spec and the knowledge base, and refuses the code |
+| `hooks/settings.json` | Runs the hook before every tool call an agent makes, from the project's settings |
 | `prompts/` | The prompts that draft the knowledge base and the questions |
 
 Everything in `knowledge-base/`, `skill/persona-sheets/`, `decisions/` and `eval/` is an example for a made-up product: an inbox where a shop's privacy lead answers people's requests about their personal data, under the GDPR. Replace it with your own.
@@ -47,6 +48,7 @@ mkdir -p .claude/skills .claude/agents .claude/hooks
 cp -r $KIT/skill .claude/skills/synthetic-user
 cp $KIT/agents/*.md .claude/agents/
 cp $KIT/hooks/black-box.mjs .claude/hooks/
+cp -n $KIT/hooks/settings.json .claude/settings.json   # if you already have one, add its hook block by hand
 cp -r $KIT/knowledge-base $KIT/decisions $KIT/specs $KIT/eval $KIT/reviews .
 ```
 
@@ -54,7 +56,7 @@ Then:
 
 1. Open `.claude/hooks/black-box.mjs` and check the folder names at the top match your project.
 2. Run the hook's tests from the kit: `node --test hooks/black-box.test.mjs`.
-3. Open Claude Code in your project and accept the workspace trust dialog, so the hooks in the agent files run.
+3. Open Claude Code in your project and accept the workspace trust dialog, so the project's hooks run. The hook lives in `.claude/settings.json`, not in the agent files: Claude Code skips an agent's own hooks in any `claude -p` run, and the agent would run with no guard. It knows each agent by its name, so keep the names `synthetic-user`, `verifier` and `rules-watch`, or rename the profiles at the top of the hook.
 4. For a product walk, give `agents/synthetic-user.md` a browser tool (see the note at the end of that file).
 
 The hook needs Node.js 18 or later.
@@ -70,6 +72,8 @@ The hook needs Node.js 18 or later.
 7. **Review.** Ask Claude Code: "Use the synthetic-user agent to review specs/<file> as <role>, in a spec review." Then: "Use the verifier on that report."
 
 The smallest start: one knowledge base page, one role, one spec review.
+
+To try it before writing your own, install the kit as it is and ask: "Use the synthetic-user agent to review specs/request-intake.md as privacy lead, in a spec review." The example spec has errors on purpose.
 
 ## What you can change
 
