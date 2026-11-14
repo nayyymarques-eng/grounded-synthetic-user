@@ -1,18 +1,18 @@
 # Prompt: draft the questions
 
-Run it after the knowledge base and the persona sheets exist. An agent drafts the questions every review must answer. A person reads and edits the draft before the first review, then pastes the questions into the table in `.claude/skills/synthetic-user/report-template.md`.
+Run it after the official rules and the persona sheets exist in the product spec. An agent drafts the questions every review must answer. A person reads and edits the draft before the first review, then pastes the questions into the table in `.claude/skills/synthetic-user/report-template.md`.
 
 Fill in `<number>`: how many interviews make a trait strong. Each business sets it.
 
 ```text
-Read the persona sheets in .claude/skills/synthetic-user/persona-sheets/ and the knowledge base in knowledge-base/.
+Read the persona sheets in spec/personas/ and the official rules in spec/sources/.
 Write the questions every review of our product must answer.
 
-1. From the knowledge base, write the questions an expert in these rules would
+1. From the official rules, write the questions an expert in these rules would
    ask about any feature, screen or text, such as whether it is correct, safe
    and honest under these rules. Write a few that apply to everything, not one
-   per rule or per topic: each review answers them against every rule on the
-   pages that apply. Each one is a single sentence that can be answered with
+   per rule or per topic: each review answers them against every official rule
+   that applies. Each one is a single sentence that can be answered with
    yes or no and a reason.
 2. From the persona sheets, write the questions a user in each role would ask:
    one per need, not one per screen. Each question names the traits it comes

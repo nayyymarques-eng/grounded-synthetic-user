@@ -1,8 +1,8 @@
 // black-box.mjs: keeps an agent on the user's side of the product.
 //
 // A Claude Code PreToolUse hook for the agents in agents/. Before each tool call an agent makes, it checks the
-// paths and addresses the call asks for. The synthetic user may read the skill, the knowledge base,
-// the spec and the product decisions; it may write its report and rules marked "to confirm". It may
+// paths and addresses the call asks for. The synthetic user may read the skill and the product spec (the official
+// rules, the persona sheets, the decisions and the features); it may write its report and rules marked "to confirm". It may
 // not read the code, the git history, the secrets or the eval cases.
 //
 // Exit 0 lets the call run. Exit 2 blocks it, and Claude Code shows the message to the agent.
@@ -22,19 +22,18 @@ import { tmpdir } from 'node:os';
 
 // ---------- Settings: edit these for your project. Folders are relative to the project root. ----------
 
-const SKILL = '.claude/skills/synthetic-user/'; // SKILL.md, the map, the persona sheets, the report template
-const KNOWLEDGE_BASE = 'knowledge-base/';       // the rules, each with its source
-const SPECS = 'specs/';                         // what is under review, in the user's terms
-const DECISIONS = 'decisions/';                 // product decisions, one file per feature
+const SKILL = '.claude/skills/synthetic-user/'; // SKILL.md, the map, the report template
+const SPEC = 'spec/';                           // the product spec: personas, official rules, decisions, flows, screens
+const SOURCES = 'spec/sources/';                // the official rules, each with its source
 const REVIEWS = 'reviews/';                     // the reports
 
 // What each agent may read and write. A role's report stays out of the other roles' reach,
 // so the synthetic user cannot read reviews/; the verifier reads them all.
 const PROFILES = {
-  'synthetic-user': { read: [SKILL, KNOWLEDGE_BASE, SPECS, DECISIONS], write: [REVIEWS, KNOWLEDGE_BASE] },
-  verifier: { read: [SKILL, KNOWLEDGE_BASE, SPECS, DECISIONS, REVIEWS], write: [REVIEWS] },
+  'synthetic-user': { read: [SKILL, SPEC], write: [REVIEWS, SOURCES] },
+  verifier: { read: [SKILL, SPEC, REVIEWS], write: [REVIEWS] },
   // The rules watch may turn a checked rule back to "to confirm". No agent may mark a rule "checked".
-  'rules-watch': { read: [KNOWLEDGE_BASE, REVIEWS], write: [KNOWLEDGE_BASE, REVIEWS], reopen: true },
+  'rules-watch': { read: [SOURCES, REVIEWS], write: [SOURCES, REVIEWS], reopen: true },
 };
 
 // Never readable, even inside an allowed folder: any folder named eval (the cases hold the answers) or .git, wherever it sits.
@@ -54,7 +53,7 @@ const BLOCKED_TOOLS = /^mcp__.*(evaluate|run_code|network_request$)/i;
 // A folder in the system's temporary directory, for screenshots and notes during a run.
 const TEMP = join(tmpdir(), 'synthetic-user');
 
-// A rule row whose mark is "checked", in the knowledge base table.
+// A rule row whose mark is "checked", in a table of official rules.
 const CHECKED_ROW = /\|\s*checked\s*\|/i;
 
 // ---------- The hook ----------
@@ -62,7 +61,7 @@ const CHECKED_ROW = /\|\s*checked\s*\|/i;
 const block = (reason) => {
   process.stderr.write(
     `Blocked (black box): ${reason}\n` +
-    'You review the product as its user meets it: the spec, the knowledge base, your skill files and the product in a browser. ' +
+    'You review the product as its user meets it: the product spec, your skill files and the product in a browser. ' +
     'If they are not enough to say what is right, write it in your report as a gap. Do not look for the code.\n');
   process.exit(2);
 };
@@ -136,8 +135,8 @@ function checkWrite(p, content, oldContent) {
   if (where.outside || forbidden(where.rel) || !profile.write.some((f) => under(where.rel, f))) {
     block(`you write only in ${list(profile.write)}. You do not change the spec, the code or the product.`);
   }
-  if (!under(where.rel, KNOWLEDGE_BASE)) return;
-  // The knowledge base: add rules marked "to confirm"; only a person marks a rule "checked".
+  if (!under(where.rel, SOURCES)) return;
+  // The official rules: add rules marked "to confirm"; only a person marks a rule "checked".
   if (oldContent === undefined && existsSync(join(real(ROOT), where.rel))) {
     block(`${where.rel} already exists. Add rules to it with Edit, so no rule is overwritten.`);
   }

@@ -3,7 +3,7 @@
 - Mode: spec review | product walk
 - Role: <persona sheet> · Evidence: strong | low
 - Date: YYYY-MM-DD · Model: <model>
-- Map row: <row> · Knowledge base pages opened: <pages> · Decisions read: <files>
+- Map row: <row> · Official rules read: <IDs> · Decisions read: <IDs>
 
 ## Questions
 
@@ -11,7 +11,7 @@ Every review answers every question. Draft yours with `prompts/questions.md`; th
 
 | # | Question | Asked as | Answer | Reason | Rests on |
 |---|---|---|---|---|---|
-| E1 | Is it correct under every rule on the pages that apply, with the rule ID cited? | expert | yes / no / does not apply | | rule IDs |
+| E1 | Is it correct under every official rule that applies, with the rule ID cited? | expert | yes / no / does not apply | | rule IDs |
 | E2 | Can a request reach its deadline without anyone seeing it? | expert | | | PRIV-01, PRIV-05 |
 | E3 | Does every date and number say what it is and where it comes from? | expert | | | PRIV-01, PRIV-02 |
 | E4 | Does it ask the person for more than the rules allow, in money, identity or effort? | expert | | | PRIV-06, PRIV-07 |
@@ -32,7 +32,7 @@ Every review answers every question. Draft yours with `prompts/questions.md`; th
 
 ## Rules checked
 
-Every rule on the knowledge base pages you opened, by ID and version, so no rule is skipped and a later change to a rule finds this review.
+Every official rule you read, by ID and version, so no rule is skipped and a later change to a rule finds this review.
 
 | Rule ID | Version (in force from) | Applies here | Followed | Note |
 |---|---|---|---|---|
@@ -52,7 +52,7 @@ Rules you needed but could not read in an official source, and traits nobody sai
 ## Self-check
 
 - [ ] Every question has a row.
-- [ ] Every rule on the pages opened is listed under "Rules checked", with its version.
+- [ ] Every official rule read is listed under "Rules checked", with its version.
 - [ ] Every finding cites a rule ID or a trait that exists.
 - [ ] No product decision is contradicted without saying so.
 - [ ] Findings from a low-evidence role are marked low.
