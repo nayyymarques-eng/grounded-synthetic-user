@@ -4,7 +4,7 @@ The verifier checks the findings of one review. The eval checks the synthetic us
 
 ## When to run it
 
-Each time a file of the synthetic user changes (the skill, the map, a persona sheet, the report template, the knowledge base), before the synthetic user reviews anything else.
+Each time a file of the synthetic user changes (the skill, the map, the report template) or the spec it reads changes (a persona sheet, an official rule, a decision), before the synthetic user reviews anything else.
 
 It is a regression test: it shows the synthetic user still catches known errors, not that it catches every error.
 

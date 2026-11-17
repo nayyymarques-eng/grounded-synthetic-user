@@ -15,10 +15,10 @@ const HOOK = join(dirname(fileURLToPath(import.meta.url)), 'black-box.mjs');
 const ROOT = mkdtempSync(join(tmpdir(), 'black-box-test-'));
 const files = {
   '.claude/skills/synthetic-user/SKILL.md': '# skill',
-  '.claude/skills/synthetic-user/persona-sheets/privacy-lead.md': '# sheet',
-  'knowledge-base/privacy-requests.md': '| ID | Rule | Mark |\n| PRIV-01 | One month | checked |\n',
-  'specs/request-form.md': '# spec',
-  'decisions/requests.md': '# decisions',
+  'spec/personas/privacy-lead.md': '# sheet',
+  'spec/sources/privacy-requests.md': '| ID | Rule | Mark |\n| PRIV-01 | One month | checked |\n',
+  'spec/screens/request.md': '# spec',
+  'spec/decisions.md': '# decisions',
   'reviews/2026-11-12-request-form-privacy-lead.md': '# report',
   'eval/cases.md': '# cases',
   '.claude/skills/synthetic-user/eval/cases.md': '# cases kept in the wrong place',
@@ -29,7 +29,7 @@ for (const [path, body] of Object.entries(files)) {
   mkdirSync(dirname(join(ROOT, path)), { recursive: true });
   writeFileSync(join(ROOT, path), body);
 }
-symlinkSync(join(ROOT, 'src'), join(ROOT, 'knowledge-base', 'link-to-src'));
+symlinkSync(join(ROOT, 'src'), join(ROOT, 'spec', 'sources', 'link-to-src'));
 
 // Claude Code sends agent_type for a subagent's tool call; the tests default to the synthetic user.
 function run(tool, args, profile, raw, agent = 'synthetic-user') {
@@ -43,11 +43,11 @@ const allows = (...a) => assert.equal(run(...a).code, 0, JSON.stringify(a));
 const blocks = (...a) => assert.equal(run(...a).code, 2, JSON.stringify(a));
 
 test('reads only the allowed folders', () => {
-  allows('Read', { file_path: join(ROOT, 'knowledge-base/privacy-requests.md') });
-  allows('Read', { file_path: 'specs/request-form.md' });
-  allows('Read', { file_path: '.claude/skills/synthetic-user/persona-sheets/privacy-lead.md' });
+  allows('Read', { file_path: join(ROOT, 'spec/sources/privacy-requests.md') });
+  allows('Read', { file_path: 'spec/screens/request.md' });
+  allows('Read', { file_path: 'spec/personas/privacy-lead.md' });
   blocks('Read', { file_path: 'src/app.js' });
-  blocks('Read', { file_path: 'knowledge-base/../src/app.js' });
+  blocks('Read', { file_path: 'spec/sources/../../src/app.js' });
   blocks('Read', { file_path: '/etc/hosts' });
 });
 
@@ -56,41 +56,42 @@ test('never reads the eval, secrets or code behind a link', () => {
   blocks('Read', { file_path: '.claude/skills/synthetic-user/eval/cases.md' });
   blocks('Grep', { pattern: 'flag', path: '.claude/skills/synthetic-user/eval' });
   blocks('Read', { file_path: '.env' });
-  blocks('Read', { file_path: 'knowledge-base/link-to-src/app.js' });
+  blocks('Read', { file_path: 'spec/sources/link-to-src/app.js' });
 });
 
 test('each profile reads its own folders', () => {
   blocks('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, 'synthetic-user');
   allows('Read', { file_path: 'reviews/2026-11-12-request-form-privacy-lead.md' }, 'verifier');
   blocks('Read', { file_path: 'eval/cases.md' }, 'verifier');
-  blocks('Read', { file_path: 'specs/request-form.md' }, 'rules-watch');
-  blocks('Read', { file_path: 'specs/request-form.md' }, 'unknown');
+  blocks('Read', { file_path: 'spec/screens/request.md' }, 'rules-watch');
+  blocks('Read', { file_path: 'spec/screens/request.md' }, 'unknown');
 });
 
 test('searches need an allowed path', () => {
   blocks('Grep', { pattern: 'deadline' });
-  allows('Grep', { pattern: 'deadline', path: 'knowledge-base' });
+  allows('Grep', { pattern: 'deadline', path: 'spec/sources' });
   blocks('Grep', { pattern: 'deadline', path: 'src' });
-  allows('Glob', { pattern: '**/*.md', path: 'specs' });
+  allows('Glob', { pattern: '**/*.md', path: 'spec' });
   blocks('Glob', { pattern: '**/*.js' });
-  blocks('Glob', { pattern: join(ROOT, 'src/*.js'), path: 'specs' });
+  blocks('Glob', { pattern: join(ROOT, 'src/*.js'), path: 'spec' });
 });
 
-test('writes only the report and the knowledge base', () => {
+test('writes only the report and the official rules', () => {
   allows('Write', { file_path: 'reviews/2026-11-13-export-board.md', content: '# report' });
   blocks('Write', { file_path: 'src/app.js', content: 'fixed' });
-  blocks('Write', { file_path: 'specs/request-form.md', content: 'changed' });
-  blocks('Write', { file_path: 'knowledge-base/x.md', content: '# rules' }, 'verifier');
+  blocks('Write', { file_path: 'spec/screens/request.md', content: 'changed' });
+  blocks('Edit', { file_path: 'spec/personas/privacy-lead.md', old_string: '# sheet', new_string: '# changed' });
+  blocks('Write', { file_path: 'spec/sources/x.md', content: '# rules' }, 'verifier');
 });
 
 test('only a person marks a rule checked', () => {
-  allows('Write', { file_path: 'knowledge-base/fees.md', content: '| PRIV-04 | Free of charge | to confirm |' });
-  blocks('Write', { file_path: 'knowledge-base/fees.md', content: '| PRIV-04 | Free of charge | checked |' });
-  blocks('Write', { file_path: 'knowledge-base/privacy-requests.md', content: 'overwrite' });
-  allows('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |\n', new_string: '| PRIV-01 | One month | checked |\n| PRIV-07 | New | to confirm |\n' });
-  blocks('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | Two months | to confirm |' });
-  allows('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | One month | to confirm |' }, 'rules-watch');
-  blocks('Edit', { file_path: 'knowledge-base/privacy-requests.md', old_string: '| PRIV-07 | New | to confirm |', new_string: '| PRIV-07 | New | checked |' }, 'rules-watch');
+  allows('Write', { file_path: 'spec/sources/fees.md', content: '| PRIV-04 | Free of charge | to confirm |' });
+  blocks('Write', { file_path: 'spec/sources/fees.md', content: '| PRIV-04 | Free of charge | checked |' });
+  blocks('Write', { file_path: 'spec/sources/privacy-requests.md', content: 'overwrite' });
+  allows('Edit', { file_path: 'spec/sources/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |\n', new_string: '| PRIV-01 | One month | checked |\n| PRIV-07 | New | to confirm |\n' });
+  blocks('Edit', { file_path: 'spec/sources/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | Two months | to confirm |' });
+  allows('Edit', { file_path: 'spec/sources/privacy-requests.md', old_string: '| PRIV-01 | One month | checked |', new_string: '| PRIV-01 | One month | to confirm |' }, 'rules-watch');
+  blocks('Edit', { file_path: 'spec/sources/privacy-requests.md', old_string: '| PRIV-07 | New | to confirm |', new_string: '| PRIV-07 | New | checked |' }, 'rules-watch');
 });
 
 test('commands are off unless allowed', () => {
@@ -119,8 +120,8 @@ test('the body of a file the page loaded is blocked; the list of addresses is no
 test('local files given to the page are reads, and a file a browser tool saves is a write', () => {
   blocks('mcp__playwright__browser_file_upload', { paths: [join(ROOT, '.env')] });
   blocks('mcp__playwright__browser_drop', { target: 'e5', paths: [join(ROOT, 'src/app.js')] });
-  allows('mcp__playwright__browser_file_upload', { paths: [join(ROOT, 'specs/request-form.md')] });
-  blocks('mcp__playwright__browser_take_screenshot', { filename: join(ROOT, 'specs/walk.png') });
+  allows('mcp__playwright__browser_file_upload', { paths: [join(ROOT, 'spec/screens/request.md')] });
+  blocks('mcp__playwright__browser_take_screenshot', { filename: join(ROOT, 'spec/walk.png') });
   blocks('mcp__playwright__browser_snapshot', { filename: 'walk.md' });
   allows('mcp__playwright__browser_take_screenshot', { filename: join(ROOT, 'reviews/walk-1.png') });
   allows('mcp__playwright__browser_take_screenshot', { filename: join(tmpdir(), 'synthetic-user', 'walk-1.png') });

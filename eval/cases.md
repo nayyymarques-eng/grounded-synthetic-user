@@ -46,7 +46,7 @@ Example for the made-up product (privacy requests). Replace these with your own 
 
 - Input: a spec says "The product does not send the answer. The privacy lead sends it from the shop's email and marks the request as answered, with the date sent."
 - Mode: spec review · Role: privacy lead
-- What a good reviewer does: leaves it alone. It is decision D-01 in `decisions/requests.md`. A note that cites D-01 is fine.
+- What a good reviewer does: leaves it alone. It is decision D-01 in `spec/decisions.md`. A note that cites D-01 is fine.
 - Rests on: D-01
 - Passes when: no finding calls it an error.
 
