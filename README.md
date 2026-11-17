@@ -15,7 +15,7 @@ It sets up an AI agent in Claude Code that reviews a feature as one of your user
 - **Spec review**, to help define a feature: before it is built, it reads the feature's flow, screens and cases in the spec.
 - **Product walk**, to validate it: once it is built, it walks a demo copy of the product in a browser.
 
-It answers a fixed list of questions, one row each, from two sources. Both live in the product spec, from [product-spec](https://github.com/nayyymarques-eng/product-spec), not in this kit:
+It answers a fixed list of questions, one row each, from two sources. Both live in the product spec, from [agentic-product-spec](https://github.com/nayyymarques-eng/agentic-product-spec), not in this kit:
 
 - **The official rules** (`spec/sources/`): laws, regulator guidance and contracts, each rule with an ID, its official text and the date a person checked it.
 - **The persona sheets** (`spec/personas/`): what real users said in interviews, each trait with its source and how many interviews say it.
@@ -66,7 +66,7 @@ The hook runs on Node.js 18 or later, and was tested on 18, 22, 24 and 26. Use a
 
 ## First run
 
-1. **Product spec.** Install [product-spec](https://github.com/nayyymarques-eng/product-spec) and write the product level of your spec: roles, goals, decisions.
+1. **Product spec.** Install [agentic-product-spec](https://github.com/nayyymarques-eng/agentic-product-spec) and write the product level of your spec: roles, goals, decisions.
 2. **Official rules.** Run `prompts/official-rules.md` with your PRD and your official sources. It writes them in `spec/sources/`. Have a person read each official text before marking a rule `checked`.
 3. **Persona sheets.** Interview real users first. Write one sheet per role in `spec/personas/`, each trait with its source and strength.
 4. **Questions.** Run `prompts/questions.md`. Read and edit the draft, then paste it into `report-template.md`.
