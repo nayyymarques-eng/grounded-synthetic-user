@@ -107,6 +107,7 @@ Fixed in every setup: every question is answered in every review, every rule has
 
 ## Versions
 
+- **v2.1, 19 November 2026.** A finding becomes an open question only if it passes three tests: nothing in the spec answers it, a builder would have to guess in a way that changes what the user sees, their privacy or their safety, and it was not answered before in other words. Every other finding is dropped, with the test it failed. Product and feature rules in the spec hold on every screen they reach, cited or not.
 - **v2, 14 November 2026.** The synthetic user keeps nothing of its own. The official rules, the persona sheets and the product decisions moved to the product spec, where the whole product reads them, and the synthetic user reads them there. Its two modes are named for what they do: the spec review helps define a feature, the product walk validates it.
 - **v1, 12 November 2026.** The synthetic user kept its own knowledge base of rules, its persona sheets and one decision file per feature.
 
