@@ -23,6 +23,8 @@ The report names its map row. Open `.claude/skills/synthetic-user/map.md` and ch
    - **For a human expert**: when only an expert can settle it. Every finding that rests on a rule still `to confirm` goes here, because nobody has checked that rule yet.
    - **Dropped**: with the reason, such as the decision that chose it or the rule that does not say it.
 
+   A finding becomes an open question only if it passes three tests: (a) no rule or decision answers it, and the report names what it checked; (b) a builder would have to guess, and the guess changes what the user sees, their privacy or their safety; (c) it is not a question already answered in other words (compare with `spec/decisions-replaced.md` and with the decisions that were once questions). One that fails goes to Dropped, with the test it failed and, for (a), the rule or decision that answers it. A product or feature rule (`spec/rules.md`, Level) answers a finding on every screen it reaches, cited or not.
+
 A finding from a low-evidence role keeps that mark in every list. A finding that rests only on a weak trait is confirmed as a question for the next interview, not as a defect.
 
 Research calls this investigator triangulation: a finding counts when a second investigator, a new agent on a different model, starting fresh, reaches it again. You test the findings you are given, and you do not look for what the synthetic user missed; the eval does that.

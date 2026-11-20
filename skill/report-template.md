@@ -49,6 +49,12 @@ Rules you needed but could not read in an official source, and traits nobody sai
 
 ## Open questions for a human expert
 
+Only findings that pass the three tests in the skill's Limits: nothing answers them (name what you checked), a builder would have to guess in a way that changes what the user sees, their privacy or their safety, and they were not answered before in other words.
+
+## Dropped
+
+Each finding that failed a test, with the test (a, b or c) and, for (a), the rule or decision that answers it.
+
 ## Self-check
 
 - [ ] Every question has a row.
@@ -57,3 +63,4 @@ Rules you needed but could not read in an official source, and traits nobody sai
 - [ ] No product decision is contradicted without saying so.
 - [ ] Findings from a low-evidence role are marked low.
 - [ ] Every date and count was worked out again.
+- [ ] Every open question passes the three tests; every other finding is under "Dropped" with its test.
